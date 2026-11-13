@@ -17,13 +17,27 @@ export function exportMarkdown(result){return `# ${result.title}\n\n${result.blo
 export const DEMO={title:'뉴턴의 운동 법칙',subject:'물리학',summary:'힘과 가속도의 관계를 설명하는 필기',blocks:[{type:'heading',text:'뉴턴의 제2법칙',confidence:'high',bbox:[8,8,90,13]},{type:'paragraph',text:'물체의 가속도는 알짜힘에 비례하고 질량에 반비례한다.',confidence:'high',bbox:[8,26,87,13]},{type:'equation',text:'F = ma',confidence:'high',bbox:[24,45,49,12]},{type:'paragraph',text:'단위: 힘 N, 질량 kg, 가속도 m/s²',confidence:'medium',bbox:[8,66,84,12]},{type:'equation',text:'a = \\frac{F}{m}',confidence:'medium',bbox:[23,81,52,11]}],warnings:['예시 데이터는 실제 사진에서 추출한 결과가 아닙니다.']};
 
 // Layout math tokens for inline rendering and test independently from React.
+// Gemini can omit math delimiters around scientific notation in prose.
+function appendProse(parts, text) {
+ const scientificNotation = /(?<![\w.])[-+−]?\d+(?:\.\d+)?[ \t]*\\times[ \t]*10[ \t]*\^[ \t]*(?:\{[-+]?\d+\}|[-+]?\d+)(?![\w])/g;
+ let start = 0;
+ for (const match of text.matchAll(scientificNotation)) {
+  if (match.index > start) parts.push({type: 'text', value: text.slice(start, match.index)});
+  const raw = match[0];
+  const value = raw.replace(/\^[ \t]*([-+]?\d+)$/, '^{$1}');
+  parts.push({type: 'math', value, display: false, raw});
+  start = match.index + raw.length;
+ }
+ if (start < text.length) parts.push({type: 'text', value: text.slice(start)});
+}
+
 export function tokenizeMath(input) {
  const text = String(input ?? '');
  const pattern = /(?<!\\)(\$\$([\s\S]+?)(?<!\\)\$\$|\\\[([\s\S]+?)\\\]|\\\(([\s\S]+?)\\\)|\$(?!\$)([^$\n]+?)(?<!\\)\$(?!\$))/g;
  const parts = [];
  let start = 0;
  for (const match of text.matchAll(pattern)) {
-  if (match.index > start) parts.push({type: 'text', value: text.slice(start, match.index)});
+  appendProse(parts, text.slice(start, match.index));
   parts.push({
    type: 'math',
    value: (match[2] ?? match[3] ?? match[4] ?? match[5]).trim(),
@@ -32,7 +46,7 @@ export function tokenizeMath(input) {
   });
   start = match.index + match[0].length;
  }
- if (start < text.length) parts.push({type: 'text', value: text.slice(start)});
+ appendProse(parts, text.slice(start));
  return parts;
 }
 

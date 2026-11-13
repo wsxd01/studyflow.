@@ -29,3 +29,12 @@ test('Markdown gives edited equations one set of display delimiters', () => {
  const note = normalizeResult({blocks: [{type: 'equation', text: String.raw`$$\sqrt{x}$$`}]});
  assert.match(exportMarkdown(note), /\n\$\$\n\\sqrt\{x\}\n\$\$\n$/);
 });
+
+test('recognizes bare scientific notation alongside prose and delimited math', () => {
+ const parts = tokenizeMath(String.raw`개체 수: 15, 100, 1.5 \times 10^4, 7.2 \times 10^{10}, 2 \times 10^-12, $3 \times 10^2$`);
+ assert.deepEqual(parts.filter(p => p.type === 'math').map(p => p.value), [
+  String.raw`1.5 \times 10^{4}`, String.raw`7.2 \times 10^{10}`,
+  String.raw`2 \times 10^{-12}`, String.raw`3 \times 10^2`,
+ ]);
+ assert.equal(parts[0].value, '개체 수: 15, 100, ');
+});
