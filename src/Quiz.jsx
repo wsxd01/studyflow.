@@ -1,8 +1,9 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {mathHtml} from './math';
+import {mathHtml, equationHtml} from './math';
 
-function QuizText({text}) {
- return <div className="mathpreview" dangerouslySetInnerHTML={{__html: mathHtml(text)}}/>;
+function QuizText({text, answer = false}) {
+ const bareEquation = answer && /\\[a-zA-Z]+/.test(text) && !/[$가-힣\n]/.test(text);
+ return <div className="mathpreview" dangerouslySetInnerHTML={{__html: bareEquation ? equationHtml(text) : mathHtml(text)}}/>;
 }
 
 export default function Quiz({note, blocked}) {
@@ -50,7 +51,7 @@ export default function Quiz({note, blocked}) {
     <details>
      <summary>정답과 해설</summary>
      <p><strong>정답</strong></p>
-     <QuizText text={q.answer}/>
+     <QuizText text={q.answer} answer/>
      <QuizText text={q.explanation}/>
      <p><strong>관련 필기 개념</strong></p>
      <QuizText text={q.basis}/>
