@@ -1,7 +1,31 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {mathHtml} from './math';
+import {equationSource} from './core';
 
-export default function NoteSummary({note}) {
+function summarizeLocally(blocks) {
+ const sections = [];
+ let section = {heading: '핵심 문장과 수식', lines: []};
+ for (const block of blocks) {
+  const text = block.text.trim();
+  if (!text) continue;
+  if (block.type === 'heading') {
+   if (section.lines.length) sections.push(section);
+   section = {heading: text, lines: []};
+   continue;
+  }
+  if (block.confidence === 'low' || text.includes('[확인 필요]')) continue;
+  section.lines.push(block.type === 'equation' ? '$$' + equationSource(text) + '$$' : text);
+ }
+ if (section.lines.length) sections.push(section);
+ return {
+  overview: 'AI 요청 한도로 원문에서 핵심 문장과 수식을 모았어.',
+  points: sections.slice(0, 6).map(({heading, lines}) => ({
+   heading, detail: lines.slice(0, 3).join('\n'),
+  })),
+ };
+}
+
+export default function NoteSummary({note, blocks}) {
  const [summary, setSummary] = useState(null);
  const [busy, setBusy] = useState(false);
  const [error, setError] = useState('');
@@ -23,6 +47,13 @@ export default function NoteSummary({note}) {
     signal: controller.signal,
    });
    const data = await response.json();
+   if (response.status === 429) {
+    const fallback = summarizeLocally(blocks);
+    if (fallback.points.length) {
+     setSummary(fallback);
+     return;
+    }
+   }
    if (!response.ok) throw new Error(data.error);
    setSummary(data.summary);
   } catch (error) {
