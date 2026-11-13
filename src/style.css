@@ -5,3 +5,13 @@
 
 /* v3: readable math previews and editing */
 .mathpreview{font-size:15px;line-height:1.9;overflow-wrap:anywhere;white-space:normal}.mathpreview .katex-display{overflow-x:auto;overflow-y:hidden;padding:5px 0}.editdetails{margin-top:7px}.editdetails summary{cursor:pointer;font-size:11px;color:#6c60a4}.editdetails[open] .blocktext{border:1px solid #dad8f1;border-radius:6px;background:#fbfaff;padding:8px;margin-top:7px;min-height:55px}
+
+.quiz{margin-top:22px;padding:20px}
+.quiz-header{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.quiz h2,.quiz h3{margin:0}
+.quiz h3{font-size:15px;margin-bottom:8px}
+.quiz ol{list-style:none;padding:0;margin:16px 0 0;display:grid;gap:12px}
+.quiz li{min-width:0;background:#fff;color:#202639;border-radius:10px;padding:16px;overflow-wrap:anywhere}
+.quiz details{margin-top:12px;border-top:1px solid #e0e4ed;padding-top:10px}
+.quiz summary{cursor:pointer;color:#5144a1;font-weight:650}
+.quiz details p{margin:10px 0 3px}
