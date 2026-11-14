@@ -74,11 +74,17 @@ export default async function handler(req, res) {
  const model = process.env.GEMINI_QUIZ_MODEL || 'gemini-3-flash-preview';
  try {
   const signal = AbortSignal.timeout(110000);
-  const result = await generate(model, instructions + `
+  const draft = await generate(model, instructions + `
 출력 전에 각 문제를 해설 없이 풀 수 있는지 확인하고, 정답을 원래 조건에 대입하거나 단위를 대조하라. 답이 여러 개인데 하나만 요구하거나 근거 없는 일반화가 들어간 문항은 교체하라.
 문항당 해설은 핵심 근거만 2~3문장으로 작성하라.`, [{text: '첨부된 필기 사진에서 읽을 수 있는 개념만 사용해 변형 문제를 만들어라.'},
    {inlineData: {mimeType, data: image}}], signal);
-  return res.status(200).json({questions: validateQuestions(result)});
+  const questions = validateQuestions(draft);
+  const reviewed = await generate(model, instructions + `
+너는 최종 검토자다. 첨부 사진에서 출제 범위를 확인하고 제출된 세 문제를 각각 독립적으로 풀어라.
+초안의 정답은 틀릴 수 있다. 직접 구한 결과와 answer를 정확히 일치시켜라. 특히 부호와 단위를 확인하라.
+잘못된 전제나 누락된 조건은 고치고, 해설에는 검증한 풀이만 써라. 세 문제 전체를 최종 형식으로 반환하라.`,
+   [{text: JSON.stringify({draft: questions})}, {inlineData: {mimeType, data: image}}], signal);
+  return res.status(200).json({questions: validateQuestions(reviewed)});
  } catch (error) {
   console.error('Study tool request failed', error.name, error.status ?? '');
   if (error.status === 429) return res.status(429).json({error: 'Gemini 요청 한도에 도달했어. 잠시 후 다시 시도해.'});
