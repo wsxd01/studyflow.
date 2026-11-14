@@ -1,26 +1,125 @@
-*{box-sizing:border-box}
-body{margin:0;background:#f6f5fb;color:#20223a;font-family:system-ui,sans-serif;line-height:1.6}
-main{max-width:850px;margin:auto;padding:48px 22px}
-header{margin-bottom:28px}
-header span{color:#5943aa;font-weight:750}
-h1{font-size:clamp(27px,5vw,42px);line-height:1.2;margin:7px 0}
-header p,.upload p{color:#515572}
-.upload,.quiz{background:#fff;border:1px solid #ddd8ee;border-radius:16px;padding:20px}
-.upload{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
-.upload label{display:block;font-weight:700;margin-bottom:6px}
-input{max-width:100%}
-.upload img{max-width:100%;max-height:200px;border-radius:8px;object-fit:contain}
-.quiz{margin-top:16px}
-.quiz-header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.quiz-header h2,.quiz h3{margin:0}
-button{font:inherit;background:#6146c5;color:#fff;border:0;border-radius:8px;padding:9px 14px;cursor:pointer;font-weight:650}
-button:disabled{opacity:.65;cursor:wait}
-.quiz ol{list-style:none;padding:0;margin:16px 0 0;display:grid;gap:12px}
-.quiz li{min-width:0;background:#f8f6ff;border:1px solid #e8e1fa;border-radius:10px;padding:16px;overflow-wrap:anywhere}
-.quiz h3{font-size:15px;color:#513d97;margin-bottom:8px}
-.quiz details{margin-top:12px;border-top:1px solid #ddd8ee;padding-top:10px}
-.quiz summary{cursor:pointer;color:#5144a1;font-weight:650}
-.quiz details p{margin:10px 0 3px}
-.mathpreview{white-space:normal;overflow-wrap:anywhere}
-.katex-display{overflow-x:auto;overflow-y:hidden}
-[role=alert]{color:#9a262b}
+:root {
+  color-scheme: light;
+  --ink: #212039;
+  --muted: #5e5872;
+  --accent: #5738bd;
+  --line: #e5dff1;
+  font-family: "Inter", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ink);
+  background: radial-gradient(ellipse at top, #f0eaff, transparent 520px), #f9f8fc;
+  line-height: 1.65;
+}
+
+main { max-width: 940px; margin: auto; padding: 58px 24px 70px; }
+
+header {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  margin-bottom: 22px;
+  padding: 41px 44px 44px;
+  border: 1px solid #43316c;
+  border-radius: 24px;
+  color: #fff;
+  background: linear-gradient(120deg, #211936 35%, #392460 100%);
+  box-shadow: 0 16px 38px #2e1d5420;
+}
+
+header::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0 0 0 53%;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 23px, #cdb7ff26 23px 24px),
+    repeating-linear-gradient(90deg, transparent 0 23px, #cdb7ff26 23px 24px);
+  mask-image: linear-gradient(100deg, transparent, #000);
+  pointer-events: none;
+}
+
+header span { color: #e2d3ff; font-size: 15px; font-weight: 750; letter-spacing: .025em; }
+h1 { margin: 12px 0 10px; font-size: clamp(27px, 5vw, 46px); line-height: 1.22; letter-spacing: -.05em; }
+header p { color: #e3daf5; margin: 0; max-width: 35rem; }
+
+.upload, .quiz {
+  padding: 25px 28px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 5px 20px #29203e09;
+}
+
+.upload { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; }
+.upload > div { min-width: 0; flex: 1 1 260px; }
+.upload label { display: block; margin-bottom: 10px; font-size: 16px; font-weight: 750; }
+.upload p { margin: 8px 0 0; color: var(--muted); font-size: 13px; }
+input[type="file"] { max-width: 100%; font: inherit; font-size: 14px; color: var(--muted); }
+input::file-selector-button {
+  margin-right: 10px;
+  padding: 8px 14px;
+  border: 1px solid #ded1fa;
+  border-radius: 8px;
+  background: #f1eaff;
+  color: #47299f;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+input::file-selector-button:hover { background: #e9ddff; }
+.upload img {
+  max-width: min(100%, 280px);
+  max-height: 200px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  object-fit: contain;
+}
+
+.quiz { margin-top: 18px; }
+.quiz-header { display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; }
+.quiz-header h2 { margin: 0; font-size: 22px; letter-spacing: -.025em; }
+button {
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 9px;
+  color: #fff;
+  background: var(--accent);
+  box-shadow: 0 3px 8px #5738bd32;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+button:not(:disabled):hover { background: #462aa7; }
+button:disabled { opacity: .7; cursor: wait; }
+:where(button, input, summary):focus-visible { outline: 3px solid #8963df; outline-offset: 4px; }
+
+.quiz ol { display: grid; gap: 14px; margin: 21px 0 0; padding: 0; list-style: none; }
+.quiz li {
+  min-width: 0;
+  padding: 17px 19px;
+  border: 1px solid #e8e0f6;
+  border-radius: 12px;
+  background: #faf8ff;
+  overflow-wrap: anywhere;
+}
+.quiz h3 { margin: 0 0 8px; color: #5338a4; font-size: 14px; }
+.quiz details { margin-top: 14px; padding-top: 10px; border-top: 1px solid #e1d7f2; }
+.quiz summary { width: fit-content; color: #5338a4; font-weight: 700; cursor: pointer; }
+.quiz details p { margin: 13px 0 4px; }
+.mathpreview { overflow-wrap: anywhere; }
+.katex-display { overflow-x: auto; overflow-y: hidden; }
+[role="alert"] { color: #a02740 !important; }
+
+@media (max-width: 560px) {
+  main { padding: 22px 14px 42px; }
+  header { padding: 28px 22px; border-radius: 18px; }
+  header p { font-size: 14px; }
+  .upload, .quiz { padding: 17px; }
+  .quiz li { padding: 14px; }
+}
