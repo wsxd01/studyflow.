@@ -19,9 +19,9 @@ export function equationHtml(text, output) {
  return renderMath(equationSource(text), true, text, output);
 }
 
-export function mathHtml(text, output) {
+export function mathHtml(text, output, bareArrows = false) {
  return tokenizeMath(text).map(part => part.type === 'text'
-  ? escapeHtml(part.value).replace(/\n/g, '<br>')
+  ? escapeHtml(bareArrows ? part.value.replace(/\\(?:rightarrow|to)(?![a-zA-Z])/g, '→') : part.value).replace(/\n/g, '<br>')
   : renderMath(part.value, part.display, part.raw, output)
  ).join('');
 }

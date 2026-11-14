@@ -3,16 +3,17 @@ import {mathHtml, equationHtml} from './math';
 
 function QuizText({text, answer = false}) {
  const bareEquation = answer && /\\[a-zA-Z]+/.test(text) && !/[$가-힣\n]/.test(text);
- return <div className="mathpreview" dangerouslySetInnerHTML={{__html: bareEquation ? equationHtml(text) : mathHtml(text)}}/>;
+ return <div className="mathpreview" dangerouslySetInnerHTML={{__html: bareEquation ? equationHtml(text) : mathHtml(text, undefined, true)}}/>;
 }
 
-export default function Quiz({note, blocked}) {
+export default function Quiz({file}) {
  const [questions, setQuestions] = useState(null);
  const [busy, setBusy] = useState(false);
  const [error, setError] = useState('');
  const request = useRef(null);
-
  useEffect(() => () => request.current?.abort(), []);
+
+
 
  async function createQuiz() {
   if (request.current) return;
@@ -21,9 +22,15 @@ export default function Quiz({note, blocked}) {
   setBusy(true);
   setError('');
   try {
+   const image = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = () => reject(new Error('사진을 읽지 못했어. 다시 선택해 줘.'));
+    reader.readAsDataURL(file);
+   });
    const response = await fetch('/api/quiz', {
     method: 'POST', headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({note}), signal: controller.signal,
+    body: JSON.stringify({image, mimeType: file.type}), signal: controller.signal,
    });
    const data = await response.json();
    if (!response.ok) throw new Error(data.error || '문제 생성에 실패했어.');
@@ -39,7 +46,7 @@ export default function Quiz({note, blocked}) {
  return <section className="quiz panel" aria-label="필기 연습 문제">
   <div className="quiz-header">
    <h2>필기 연습 문제</h2>
-   <button className="primary" disabled={busy || blocked} onClick={createQuiz}>
+   <button className="primary" disabled={busy} onClick={createQuiz}>
     {busy ? '문제 만들고 확인하는 중…' : questions ? '새 문제 만들기' : '이 필기로 문제 만들기'}
    </button>
   </div>
