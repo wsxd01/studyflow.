@@ -74,8 +74,9 @@ input::file-selector-button {
 }
 input::file-selector-button:hover { background: #e9ddff; }
 .upload img {
-  max-width: min(100%, 280px);
-  max-height: 200px;
+  width: 100%;
+  height: auto;
+  max-height: 560px;
   border: 1px solid var(--line);
   border-radius: 12px;
   object-fit: contain;
